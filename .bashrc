@@ -21,27 +21,70 @@ GITPROMPT='\[\033[1m\]\[\033[38;5;1m\][\[\033[38;5;231m\]\t\[\033[38;5;1m\]] $([
 PS1="$GITPROMPT"
 
 ### ssh-agent config
-SSH_ENV="$HOME/.ssh/environment"
 
-function start_agent {
-     echo "Initialising new SSH agent..."
-     /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
-     echo succeeded
-     chmod 600 "${SSH_ENV}"
-     . "${SSH_ENV}" > /dev/null
-     /usr/bin/ssh-add ~/.ssh/id_rsa;
+#SSH_ENV="$HOME/.ssh/environment"
+
+#function start_ssh-agent {
+#     echo "Initialising new SSH agent..."
+#     ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+#     chmod 600 "${SSH_ENV}"
+#     . "${SSH_ENV}" > /dev/null
+#     ssh-add ~/.ssh/id_rsa;
+#     ssh-add -l
+#}
+
+#if [ -f "${SSH_ENV}" ]; then
+#    . "${SSH_ENV}" > /dev/null
+#    if [ ! "$(pidof ssh-agent)" == "${SSH_AGENT_PID}" ]; then
+#        killall ssh-agent 2>/dev/null
+#        start_agent;
+#    fi
+#else
+#     start_ssh-agent;
+#fi
+
+### gpg-agent config
+
+function start_gpg-agent {
+    gpg-connect-agent updatestartuptty /bye
+    SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    export SSH_AUTH_SOCK
 }
 
 # Source SSH settings, if applicable
-
-if [ -f "${SSH_ENV}" ]; then
-     . "${SSH_ENV}" > /dev/null
-     #ps ${SSH_AGENT_PID} doesn't work under cywgin
-     ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-         start_agent;
-     }
+if [ -z "${SSH_AUTH_SOCK}" ]; then
+    start_gpg-agent
+    if pidof gpg-agent >/dev/null; then
+        ssh-add -l
+    fi
 else
-     start_agent;
+    if [ ! -z "${SSH_AGENT_PID}" ]; then
+        SSH_AUTH_SOCK_INFO="${SSH_AGENT_PID}"
+    elif pidof gpg-agent >/dev/null; then
+        SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+        export SSH_AUTH_SOCK
+    else
+       SSH_AUTH_SOCK_INFO="$(basename ${SSH_AUTH_SOCK})"
+    fi
+    ssh-add -l
 fi
+[ ! -z "${SSH_AUTH_SOCK_INFO}" ] && PS1="\[\e[31m\](\[\e[m\]\[\e[37;40m\]${SSH_AUTH_SOCK_INFO}\[\e[m\]\[\e[31m\])\[\e[m\] ${PS1}"
 
+function private-env {
+    export GIT_CONFIG=~/.gitconfig-private
+    agent_wrapper -k ~/.ssh/id_rsa bash
+}
+
+# aliases
 alias rsync='rsync --stats --progress'
+alias update='sudo emerge --sync; sudo layman -S'
+alias upgrade='sudo emerge --ask --verbose --newuse --changed-use --deep @world'
+alias depclean='sudo emerge --ask --verbose --depclean'
+
+# extra variables
+PATH="${PATH}:~/.local/bin:/usr/share/google-cloud-sdk/bin"
+export PATH
+export INPUTRC="~/.inputrc"
+
+# bash completion
+source <(kubectl completion bash)
