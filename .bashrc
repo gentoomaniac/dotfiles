@@ -33,7 +33,7 @@ PS1="${GITPROMPT}"
 function start_ssh_agent {
     SSH_ENV_PREFIX=${1:-default}; shift
     SSH_ENV="$HOME/.ssh/${SSH_ENV_PREFIX}-env"
-    
+
     if [ -f "${SSH_ENV}" ]; then
         # shellcheck disable=SC1090
         . "${SSH_ENV}" > /dev/null
@@ -52,11 +52,6 @@ function start_ssh_agent {
     fi
     # shellcheck disable=SC1117
     [ ! -z "${SSH_ENV_PREFIX}" ] && PS1="\[\e[31m\](\[\e[m\]\[\e[37;40m\]${SSH_ENV_PREFIX}\[\e[m\]\[\e[31m\])\[\e[m\] ${GITPROMPT}"
-}
-
-# gpg-agent config
-function start_gpg_agent {
-    gpg-connect-agent updatestartuptty /bye
 }
 
 # functions to setup seperate environments
@@ -80,16 +75,5 @@ function setup-env {
 
 # aliases
 alias rsync='rsync --stats --progress'
-alias update='sudo emerge --sync; sudo layman -S'
-alias upgrade='sudo emerge --ask --verbose --newuse --changed-use --deep @world'
-alias depclean='sudo emerge --ask --verbose --depclean'
 
-# extra variables
-PATH="${PATH}:${HOME}/.local/bin:/usr/share/google-cloud-sdk/bin"
-export PATH
 
-# bash completion
-# shellcheck disable=SC1090
-source <(kubectl completion bash)
-
-start_gpg_agent
