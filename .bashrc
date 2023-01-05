@@ -1,6 +1,27 @@
 #! /usr/bin/env bash
 
-# GIT prompt
+# prompt
+BLACK="$(tput setaf 0)"
+RED="$(tput setaf 196)"
+GREEN="$(tput setaf 2)"
+GREENB="$(tput setaf 118)"
+BROWN="$(tput setaf 3)"
+YELLOW="$(tput setaf 227)"
+LIGHTBLUE="$(tput setaf 033)"
+BLUE="$(tput setaf 4)"
+DARKBLUE="$(tput setaf 021)"
+MAGENTA="$(tput setaf 5)"
+CYAN="$(tput setaf 6)"
+WHITE="$(tput setaf 7)"
+ORANGE="$(tput setaf 202)"
+RESET="$(tput sgr0)"
+BOLD="$(tput bold)"
+SMUL="$(tput smul)"
+RMUL="$(tput rmul)"
+BLINK="$(tput blink)"
+SMSO="$(tput smso)"
+RMSO="$(tput rmso)"
+
 prompt_git() {
     git branch &>/dev/null || return 1
     HEAD="$(git symbolic-ref HEAD 2>/dev/null)"
@@ -8,9 +29,9 @@ prompt_git() {
     git status -s | grep -q '^ M' && STATUS+="!"
     git status -s | grep -q '^??' && STATUS+="+"
     if [ -z "${STATUS}" ]; then
-        GIT_STATUS="(git:${BRANCH:-unknown}) "
+        GIT_STATUS="${YELLOW}(git:${BRANCH:-unknown}) "
     else
-        GIT_STATUS="(git:${BRANCH:-unknown}:${STATUS}) "
+        GIT_STATUS="${YELLOW}(git:${BRANCH:-unknown}:${STATUS}) "
     fi
     echo -n "${GIT_STATUS}"
 }
@@ -24,9 +45,7 @@ gitprompt() {
 }
 
 # shellcheck disable=SC2016
-BASEPROMPT='\[\033[1m\]\[\033[38;5;1m\][\[\033[38;5;231m\]\t\[\033[38;5;1m\]] $([ "${UID}" -eq 0 ] && echo "\[\033[38;5;9m\]" || echo "\[\033[38;5;10m\]")\u\[\033[38;5;12m\]@\[\033[38;5;10m\]\h \[\033[38;5;12m\]\W/ \[\033[38;5;11m\]>\[\033[0m\] '
-# shellcheck disable=SC2016
-GITPROMPT='\[\033[1m\]\[\033[38;5;1m\][\[\033[38;5;231m\]\t\[\033[38;5;1m\]] $([ "${UID}" -eq 0 ] && echo "\[\033[38;5;9m\]" || echo "\[\033[38;5;10m\]")\u\[\033[38;5;12m\]@\[\033[38;5;10m\]\h \[\033[38;5;12m\]\W/ \[\033[38;5;11m\]$(prompt_git)>\[\033[0m\] '
+GITPROMPT='${BOLD}${RED}[${WHITE}\t${RED}] $([ "${UID}" -eq 0 ] && echo "${RED}" || echo "${GREEN}")\u${LIGHTBLUE}@${GREEN}\h ${BLUE}\W/ $(prompt_git)${YELLOW}>${RESET} '
 PS1="${GITPROMPT}"
 
 # ssh-agent config
@@ -46,13 +65,19 @@ function start_ssh_agent {
         # shellcheck disable=SC1090
         . "${SSH_ENV}" > /dev/null
         for key in "${@:-${HOME}/.ssh/id_rsa}"; do
-            ssh-add "${key}";
+            expect << EOF
+  spawn ssh-add ${key}
+  expect "Enter passphrase"
+  send "$(get_password_from_keepass "${SSH_ENV_PREFIX}-id_rsa")\r"
+  expect eof
+EOF
         done
         ssh-add -l
     fi
     # shellcheck disable=SC1117
-    [ ! -z "${SSH_ENV_PREFIX}" ] && PS1="\[\e[31m\](\[\e[m\]\[\e[37;40m\]${SSH_ENV_PREFIX}\[\e[m\]\[\e[31m\])\[\e[m\] ${GITPROMPT}"
+    [ ! -z "${SSH_ENV_PREFIX}" ] && PS1="${BOLD}${RED}(${RESET}${BOLD}${SSH_ENV_PREFIX}${RED})${RESET} ${GITPROMPT}"
 }
+
 
 # functions to setup seperate environments
 function setup-env {
