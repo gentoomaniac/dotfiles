@@ -1,26 +1,40 @@
 #! /usr/bin/env bash
 
 # prompt
-BLACK="$(tput setaf 0)"
-RED="$(tput setaf 196)"
-GREEN="$(tput setaf 2)"
-GREENB="$(tput setaf 118)"
-BROWN="$(tput setaf 3)"
-YELLOW="$(tput setaf 227)"
-LIGHTBLUE="$(tput setaf 033)"
-BLUE="$(tput setaf 4)"
-DARKBLUE="$(tput setaf 021)"
-MAGENTA="$(tput setaf 5)"
-CYAN="$(tput setaf 6)"
-WHITE="$(tput setaf 7)"
-ORANGE="$(tput setaf 202)"
-RESET="$(tput sgr0)"
-BOLD="$(tput bold)"
-SMUL="$(tput smul)"
-RMUL="$(tput rmul)"
-BLINK="$(tput blink)"
-SMSO="$(tput smso)"
-RMSO="$(tput rmso)"
+# https://misc.flogisoft.com/bash/tip_colors_and_formatting
+BLACK="\[$(tput setaf 0)\]"
+RED="\[$(tput setaf 196)\]"
+GREEN="\[$(tput setaf 2)\]"
+GREENB="\[$(tput setaf 118)\]"
+BROWN="\[$(tput setaf 3)\]"
+YELLOW="\[$(tput setaf 227)\]"
+LIGHTBLUE="\[$(tput setaf 033)\]"
+BLUE="\[$(tput setaf 4)\]"
+DARKBLUE="\[$(tput setaf 021)\]"
+MAGENTA="\[$(tput setaf 5)\]"
+CYAN="\[$(tput setaf 6)\]"
+WHITE="\[$(tput setaf 7)\]"
+ORANGE="\[$(tput setaf 202)\]"
+RESET="\[$(tput sgr0)\]"
+BOLD="\[$(tput bold)\]"
+SMUL="\[$(tput smul)\]"
+RMUL="\[$(tput rmul)\]"
+BLINK="\[$(tput blink)\]"
+SMSO="\[$(tput smso)\]"
+RMSO="\[$(tput rmso)\]"
+
+parse_kube_ctx() {
+  cat ~/.kube/config 2> /dev/null | \
+  grep "^current-context:" | \
+  sed "s/^current-context: //" | \
+  grep -v '""' | \
+  sed -E -e "s/tink\.teleport\.sh-//" \
+         -e "s/(minikube)/${CYAN}[\1]${RESET} /" \
+         -e "s/(.+-testing)/${GREEN}[\1]${RESET} /" \
+         -e "s/(.+-(staging|preprod))/${ORANGE}[\1]${RESET} /" \
+         -e "s/(.+-production)/${RED}[\1]${RESET} /"
+         #-e "s/(.+-production)/$(tput setaf 9)[\1]$(tput sgr0)/"
+}
 
 prompt_git() {
     git branch &>/dev/null || return 1
@@ -36,17 +50,9 @@ prompt_git() {
     echo -n "${GIT_STATUS}"
 }
 
-gitprompt() {
-    if echo "${PS1}" | grep -q "prompt_git"; then
-        PS1="${BASEPROMPT}"
-    else
-        PS1="${GITPROMPT}"
-    fi
-}
-
 # shellcheck disable=SC2016
-GITPROMPT='${BOLD}${RED}[${WHITE}\t${RED}] $([ "${UID}" -eq 0 ] && echo "${RED}" || echo "${GREEN}")\u${LIGHTBLUE}@${GREEN}\h ${BLUE}\W/ $(prompt_git)${YELLOW}>${RESET} '
-PS1="${GITPROMPT}"
+PS1="${BOLD}${RED}[${WHITE}\t${RED}] $([ "${UID}" -eq 0 ] && echo "${RED}" || echo "${GREEN}")\u${LIGHTBLUE}@${GREEN}\h ${BLUE}\W/ $(prompt_git)$(parse_kube_ctx)${BOLD}${YELLOW}>${RESET} "
+export PS1
 
 # ssh-agent config
 function start_ssh_agent {
@@ -100,5 +106,3 @@ function setup-env {
 
 # aliases
 alias rsync='rsync --stats --progress'
-
-
