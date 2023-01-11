@@ -50,13 +50,22 @@ prompt_git() {
     echo -n "${GIT_STATUS}"
 }
 
-# shellcheck disable=SC2016
-PS1="${BOLD}${RED}[${WHITE}\t${RED}] $([ "${UID}" -eq 0 ] && echo "${RED}" || echo "${GREEN}")\u${LIGHTBLUE}@${GREEN}\h ${BLUE}\W/ $(prompt_git)$(parse_kube_ctx)${BOLD}${YELLOW}>${RESET} "
-export PS1
+function build_prompt() {
+    PS1="${BOLD}"
+    PS1+="$([ ! -z "${SSH_ENV_PREFIX}" ] && echo "${RED}(${WHITE}${SSH_ENV_PREFIX}${RED}) ")"    # SSH env prefix
+    PS1+="${RED}[${WHITE}\t${RED}] "                                                             # timestamp
+    PS1+="$([ "${UID}" -eq 0 ] && echo "${RED}" || echo "${GREEN}")\u${BLUE}@${GREEN}\h "        # user@host
+    PS1+="${BLUE}\W/ "                                                                           # cwd
+    PS1+="$(prompt_git)"                                                                         # GIT status
+    PS1+="$(parse_kube_ctx)"                                                                     # k8s context
+    PS1+="${BOLD}${YELLOW}>${RESET} "                                                            # prompt indicator
+}
+
+PROMPT_COMMAND=build_prompt
 
 # ssh-agent config
 function start_ssh_agent {
-    SSH_ENV_PREFIX=${1:-default}; shift
+    export SSH_ENV_PREFIX=${1:-default}; shift
     SSH_ENV="$HOME/.ssh/${SSH_ENV_PREFIX}-env"
 
     if [ -f "${SSH_ENV}" ]; then
@@ -80,8 +89,6 @@ EOF
         done
         ssh-add -l
     fi
-    # shellcheck disable=SC1117
-    [ ! -z "${SSH_ENV_PREFIX}" ] && PS1="${BOLD}${RED}(${RESET}${BOLD}${SSH_ENV_PREFIX}${RED})${RESET} ${GITPROMPT}"
 }
 
 
@@ -92,10 +99,6 @@ function setup-env {
         private)
             export GIT_CONFIG=~/.gitconfig-private
             start_ssh_agent private ~/.ssh/id_rsa
-            ;;
-
-        trustly)
-            start_ssh_agent trustly ~/.ssh/trustly.id_rsa
             ;;
 
         *)
