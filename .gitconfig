@@ -1,0 +1,8 @@
+[user]
+        name = Marco Siebecke
+        email = marco@siebecke.se
+[init]
+        defaultBranch = main
+[safe]
+        directory = /home/marco/.dotfiles
+        directory = /home/marco/.vim
