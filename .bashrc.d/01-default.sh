@@ -1,3 +1,8 @@
+if [ -f /etc/lsb-release ]; then
+ source /etc/lsb-release
+fi
+
+
 # prompt
 # https://misc.flogisoft.com/bash/tip_colors_and_formatting
 BLACK="\[$(tput setaf 0)\]"
