@@ -1,4 +1,5 @@
 alias rsync='rsync --stats --progress'
+alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
 
 # convenience for neovim
 n() {
