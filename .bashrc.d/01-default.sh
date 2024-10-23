@@ -100,8 +100,7 @@ function setup-env {
     esac
 }
 
-# aliases
-alias rsync='rsync --stats --progress'
-
 setup-env
+
+stty -ixon
 
