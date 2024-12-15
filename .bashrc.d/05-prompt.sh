@@ -22,13 +22,15 @@ SMSO="\[$(tput smso)\]"
 RMSO="\[$(tput rmso)\]"
 
 if [ ! -f "$GOPATH/bin/powerline-go" ]; then
-    go install github.com/justjanne/powerline-go@latest
+    go install github.com/gentoomaniac/powerline-go@latest
 fi
 
 function _powerline() {
-    MODULES="venv,user,host,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
+    MODULES="time,venv,user,host,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
+    PRIORITY="time,root,cwd,user,host,ssh,perms,git-branch,git-status,hg,jobs,exit,cwd-path"
 
-    PS1="$($GOPATH/bin/powerline-go -error $? -jobs $(jobs -p | wc -l) -newline -theme gruvbox -modules ${MODULES} -hostname-only-if-ssh -colorize-hostname)"
+    #PS1="$(powerline-go --error=$? --jobs=$(jobs -p | wc -l) --newline --theme=gruvbox --modules=${MODULES} --hostname-only-if-ssh --colorize-hostname)"
+    PS1="$(powerline-go --prev-error $? --jobs "$(jobs -p | wc -l)" --newline --modules "${MODULES}" --priority "${PRIORITY}"--hostname-only-if-ssh --colorize-hostname)"
 
     # Uncomment the following line to automatically clear errors after showing
     # them once. This not only clears the error for powerline-go, but also for
