@@ -22,7 +22,7 @@ SMSO="\[$(tput smso)\]"
 RMSO="\[$(tput rmso)\]"
 
 if [ ! -f "$GOPATH/bin/powerline-go" ]; then
-    go install github.com/gentoomaniac/powerline-go@latest
+    go install github.com/gentoomaniac/powerline-go/cmd/powerline-go@latest
 fi
 
 function _powerline() {
