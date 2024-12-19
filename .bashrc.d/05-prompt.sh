@@ -26,8 +26,12 @@ if [ ! -f "$GOPATH/bin/powerline-go" ]; then
 fi
 
 function _powerline() {
-    MODULES="time,venv,user,host,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
-    PRIORITY="time,root,cwd,user,host,ssh,perms,git-branch,git-status,hg,jobs,exit,cwd-path"
+    if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|fizzbuzz)$ ]]; then
+        MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
+    else
+        MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
+    fi
+    PRIORITY="time,root,user,host,cwd,ssh,perms,git-branch,git-status,hg,jobs,exit,cwd-path"
 
     #PS1="$(powerline-go --error=$? --jobs=$(jobs -p | wc -l) --newline --theme=gruvbox --modules=${MODULES} --hostname-only-if-ssh --colorize-hostname)"
     PS1="$(powerline-go --prev-error $? --jobs "$(jobs -p | wc -l)" --newline --modules "${MODULES}" --priority "${PRIORITY}"--hostname-only-if-ssh --colorize-hostname)"

@@ -8,3 +8,9 @@ if [ -d "${HOME}/.bash_completion.d" ]; then
     done
 fi
 
+if [ ! -z "$(which fzf)" ]; then
+    source /usr/share/doc/fzf/examples/key-bindings.bash
+else
+    echo '!! `fzf` not found'
+fi
+
