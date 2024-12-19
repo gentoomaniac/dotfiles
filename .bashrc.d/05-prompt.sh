@@ -34,7 +34,7 @@ function _powerline() {
     PRIORITY="time,root,user,host,cwd,ssh,perms,git-branch,git-status,hg,jobs,exit,cwd-path"
 
     #PS1="$(powerline-go --error=$? --jobs=$(jobs -p | wc -l) --newline --theme=gruvbox --modules=${MODULES} --hostname-only-if-ssh --colorize-hostname)"
-    PS1="$(powerline-go --prev-error $? --jobs "$(jobs -p | wc -l)" --newline --modules "${MODULES}" --priority "${PRIORITY}"--hostname-only-if-ssh --colorize-hostname)"
+    PS1="$(powerline-go --prev-error $? --jobs "$(jobs -p | wc -l)" --newline --modules "${MODULES}" --priority "${PRIORITY}"--hostname-only-if-ssh --colorize-hostname --shorten-gke-names)"
 
     # Uncomment the following line to automatically clear errors after showing
     # them once. This not only clears the error for powerline-go, but also for
