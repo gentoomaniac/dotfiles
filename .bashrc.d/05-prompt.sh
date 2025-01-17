@@ -26,7 +26,7 @@ if [ ! -f "$GOPATH/bin/powerline-go" ]; then
 fi
 
 function _powerline() {
-    if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|fizzbuzz)$ ]]; then
+    if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|gentoobox.clients.gentoomaniac.net)$ ]]; then
         MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
     else
         MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,root"

@@ -34,4 +34,6 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     alias update='sudo emerge --sync'
     alias upgrade='sudo emerge --ask --verbose --update --newuse --deep --keep-going --with-bdeps=y @world'
     alias depclean='sudo emerge --ask --verbose --depclean'
+
+    export GH_TOKEN="$(cat ${HOME}/.config/gh_token)"
 fi
