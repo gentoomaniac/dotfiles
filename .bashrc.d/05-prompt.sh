@@ -27,11 +27,11 @@ fi
 
 function _powerline() {
     if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|gentoobox.clients.gentoomaniac.net)$ ]]; then
-        MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
+        MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,githubnotifications"
     else
-        MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,root"
+        MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
     fi
-    PRIORITY="time,root,user,host,cwd,ssh,perms,git-branch,git-status,hg,jobs,exit,cwd-path"
+    PRIORITY="time,root,user,host,cwd,ssh,perms,git-branch,git-status,hg,jobs,githubnotifications,exit,cwd-path"
 
     #PS1="$(powerline-go --error=$? --jobs=$(jobs -p | wc -l) --newline --theme=gruvbox --modules=${MODULES} --hostname-only-if-ssh --colorize-hostname)"
     PS1="$(powerline-go --prev-error $? --jobs "$(jobs -p | wc -l)" --newline --modules "${MODULES}" --priority "${PRIORITY}"--hostname-only-if-ssh --colorize-hostname --shorten-gke-names)"
