@@ -3,14 +3,12 @@ if [ -f /etc/bash_completion ]; then
 fi
 
 if [ -d "${HOME}/.bash_completion.d" ]; then
-    for file in $(ls "${HOME}/.bash_completion.d"); do
+    for file in "${HOME}/.bash_completion.d"/*; do
         source "${file}"
     done
 fi
 
-if [ ! -z "$(which fzf)" ]; then
+if [ -f "/usr/share/doc/fzf/examples/key-bindings.bash" ]; then
     source /usr/share/doc/fzf/examples/key-bindings.bash
-else
-    echo '!! `fzf` not found'
 fi
 
