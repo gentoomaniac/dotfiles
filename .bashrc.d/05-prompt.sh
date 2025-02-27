@@ -40,8 +40,10 @@ function _powerline() {
     #set "?"
 }
 
-export GH_TOKEN="$(cat "${HOME}/.config/gh_token")"
+if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|gentoobox.clients.gentoomaniac.net)$ ]]; then
+    export GH_TOKEN="$(cat "${HOME}/.config/gh_token")"
+fi
 
-if [ "$TERM" != "linux" ] && [ -f "$GOPATH/bin/powerline-go" ]; then
+if [ "$TERM" != "linux" ] && [ -n "$(which powerline-go)" ]; then
     PROMPT_COMMAND="_powerline;"
 fi
