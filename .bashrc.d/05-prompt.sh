@@ -22,7 +22,7 @@ SMSO="\[$(tput smso)\]"
 RMSO="\[$(tput rmso)\]"
 
 function _powerline() {
-    if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|gentoobox.clients.gentoomaniac.net)$ ]]; then
+    if [[ "$(hostname)" =~ ^(marco-mbrk-ubuntu|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
         MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,githubnotifications"
     else
         MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
