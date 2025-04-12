@@ -1,8 +1,11 @@
 [user]
-        name = Marco Siebecke
-        email = marco@siebecke.se
+    name = Marco Siebecke
+    email = marco@siebecke.se
 [init]
-        defaultBranch = main
+    defaultBranch = main
 [safe]
-        directory = /home/marco/.config/dotfiles
-        directory = /home/marco/.config/nvim
+    directory = /home/marco/.config/dotfiles
+    directory = /home/marco/.config/nvim
+
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/

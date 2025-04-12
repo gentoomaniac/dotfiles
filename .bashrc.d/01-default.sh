@@ -43,8 +43,6 @@ function setup-env {
     esac
 }
 
-setup-env
-
 stty -ixon
 
 export LANG=en_GB.UTF-8

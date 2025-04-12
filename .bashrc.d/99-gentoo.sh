@@ -23,6 +23,7 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
 
     function kupdate {
         pushd /usr/src/linux || exit
+        [ -f .config ] && sudo cp .config "../config-$(readlink ../linux)-$(date +"%Y-%m-%d-%H%M%S")"
         sudo make -j12 && \
             sudo make install && \
             sudo make -j12 modules && \
