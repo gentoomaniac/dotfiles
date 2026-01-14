@@ -23,7 +23,7 @@ RMSO="\[$(tput rmso)\]"
 
 function _powerline() {
     if [[ "$(hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
-        MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit,githubnotifications"
+        MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
     else
         MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
     fi
