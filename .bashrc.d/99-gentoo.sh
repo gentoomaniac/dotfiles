@@ -19,8 +19,27 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     }
 
     function kupdate {
+        local BOOT_SNAP_NAME="pre-kupdate-$(date +"%Y-%m-%d-%H%M%S")"
+        if zfs list bootpool >/dev/null 2>&1; then
+            echo ">>> ZFS: Snapshotting bootpool: bootpool@${BOOT_SNAP_NAME}"
+            sudo zfs snapshot -r -o "com.gentoo:command=kupdate (manual)" "bootpool@${BOOT_SNAP_NAME}"
+        fi
+
         pushd /usr/src/linux || exit
-        [ -f .config ] && sudo cp .config "../config-$(readlink ../linux)-$(date +"%Y-%m-%d-%H%M%S")"
+
+        local KVER=$(make -s kernelrelease)
+        local DATESTAMP=$(date +"%Y-%m-%d-%H%M%S")
+        local CONFIG_ARCHIVE="/boot/config-${KVER}-${DATESTAMP}"
+
+        if [ -f .config ]; then
+            echo ">>> Archiving kernel config to ${CONFIG_ARCHIVE}..."
+            sudo cp .config "${CONFIG_ARCHIVE}"
+
+            echo ">>> Linking /boot/config-${KVER} to archive..."
+            sudo ln -sf "${CONFIG_ARCHIVE}" "/boot/config-${KVER}"
+
+            sudo cp .config "../config-$(readlink ../linux)-${DATESTAMP}"
+        fi
 
         local CORES=$(nproc)
         local JOBS=$(( CORES > 2 ? CORES - 2 : 1 ))
@@ -48,12 +67,10 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
             sudo emerge @module-rebuild
         fi
 
-        LOCAL_KVER=$(make -s kernelrelease)
-        sudo depmod -a "${LOCAL_KVER}"
-
-        echo ">>> Building initramfs for $LOCAL_KVER..."
-        sudo dracut --hostonly --kver "$LOCAL_KVER" --force \
-            --install "/lib/modules/$LOCAL_KVER/video/*.ko" \
+        sudo depmod -a "${KVER}"
+        echo ">>> Building initramfs for $KVER..."
+        sudo dracut --hostonly --kver "$KVER" --force \
+            --install "/lib/modules/$KVER/video/*.ko" \
             --add-drivers "${DRACUT_NVIDIA} i915" \
             --omit "nfs"
 
