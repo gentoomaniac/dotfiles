@@ -1,0 +1,9 @@
+#!/bin/bash
+# Global emerge interceptor for ZFS snapshots
+
+# 1. Capture the command to a persistent file
+echo "emerge $*" > /var/tmp/.emerge_cmd_metadata
+chmod 644 /var/tmp/.emerge_cmd_metadata
+
+# 2. Run the REAL emerge
+exec /usr/bin/emerge "$@"
