@@ -8,6 +8,8 @@ if [[ -d /sys/module/zfs ]]; then
     ZFS_PROP="com.gentoo:command"
 
     pre_pkg_setup() {
+        [[ $EUID -ne 0 ]] && return
+
         ZFS_PARENT_DATASET=$(df / | awk 'NR==2 {print $1}' | cut -d'/' -f1-2)
         ZFS_TARGET_DATASET="${ZFS_PARENT_DATASET:-rootpool/gentoo}"
 
@@ -93,6 +95,8 @@ if [[ -d /sys/module/zfs ]]; then
     }
 
     post_pkg_postinst() {
+        [[ $EUID -ne 0 ]] && return
+
         # Final cleanup when the very last emerge finishes
         if [[ $(pgrep -xc emerge) -le 1 ]]; then
             rm -f "$ZFS_GLOBAL_LOCK" "$ZFS_WORLD_LOCK"
