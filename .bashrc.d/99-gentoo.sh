@@ -50,31 +50,51 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
             sudo make modules_install
 
         REBUILD_MODULES="FALSE"
-
         if qlist -I sys-fs/zfs > /dev/null 2>&1 || qlist -I sys-fs/zfs-kmod > /dev/null 2>&1; then
-            echo ">>> ZFS detected. Rebuilding modules..."
+            echo ">>> ZFS detected..."
             REBUILD_MODULES="TRUE"
         fi
 
         DRACUT_NVIDIA=""
         if lspci | grep -qi "nvidia" && qlist -I x11-drivers/nvidia-drivers > /dev/null 2>&1; then
-            echo ">>> NVIDIA hardware and driver detected"
-            DRACUT_NVIDIA="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+            echo ">>> nvidia-drivers detected..."
             REBUILD_MODULES="TRUE"
         fi
 
         if [ "${REBUILD_MODULES}" == "TRUE" ]; then
+            echo ">>> Rebuilding modules..."
             sudo emerge @module-rebuild
         fi
 
-        sudo depmod -a "${KVER}"
-        echo ">>> Building initramfs for $KVER..."
-        sudo dracut --hostonly --kver "$KVER" --force \
-            --install "/lib/modules/$KVER/video/*.ko" \
-            --add-drivers "${DRACUT_NVIDIA} i915" \
-            --omit "nfs"
+        update-initrd "${KVER}"
 
         popd || exit
+    }
+
+    function update-initrd () {
+        local KVER=${1}
+
+        if [ -z "${KVER}" ]; then
+            echo "Error: You must specify a kernel version."
+            return 1
+        fi
+
+        if [ ! -d "/lib/modules/${KVER}" ]; then
+            echo "Error: Kernel version ${KVER} doesn't seem to exist in /lib/modules."
+            return 1
+        fi
+
+        # Ensure module dependencies are up to date before building
+        echo ">>> Refreshing module dependencies..."
+        sudo depmod -a "${KVER}"
+
+        echo ">>> Building initramfs for ${KVER}..."
+        # --force: Overwrite existing images
+        # --hostonly: precise image for this machine
+        # --omit: Strip networking and NVIDIA to keep it small (~30MB)
+        sudo dracut --hostonly --kver "${KVER}" --force \
+            --add-drivers "i915" \
+            --omit "nfs nvidia nvidia_modeset nvidia_uvm nvidia_drm"
     }
 
     # aliases
