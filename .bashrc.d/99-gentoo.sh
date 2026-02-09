@@ -19,7 +19,7 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     }
 
     function kupdate {
-        local BOOT_SNAP_NAME="pre-kupdate-$(date +"%Y-%m-%d-%H%M%S")"
+        local BOOT_SNAP_NAME="pre-kupdate-$(date +"%Y%m%d-%H%M%S")"
         if zfs list bootpool >/dev/null 2>&1; then
             echo ">>> ZFS: Snapshotting bootpool: bootpool@${BOOT_SNAP_NAME}"
             sudo zfs snapshot -r -o "com.gentoo:command=kupdate (manual)" "bootpool@${BOOT_SNAP_NAME}"
