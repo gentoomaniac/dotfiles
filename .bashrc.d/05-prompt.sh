@@ -22,7 +22,7 @@ SMSO="\[$(tput smso)\]"
 RMSO="\[$(tput rmso)\]"
 
 function _powerline() {
-    if [[ "$(hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
+    if [[ "$(hostnamectl hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
         MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
     else
         MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
@@ -40,7 +40,7 @@ function _powerline() {
     #set "?"
 }
 
-if [[ "$(hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net)$ ]]; then
+if [[ "$(hostnamectl hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net)$ ]]; then
     export GH_TOKEN="$(cat "${HOME}/.config/gh_token")"
 fi
 
