@@ -45,9 +45,8 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
         local JOBS=$(( CORES > 2 ? CORES - 2 : 1 ))
         echo ">>> Detected $CORES cores. Building with -j$JOBS..."
 
-        sudo make -j${JOBS} && \
-            sudo make install && \
-            sudo make modules_install
+        sudo make -j${JOBS} || exit
+        sudo make modules_install || exit
 
         REBUILD_MODULES="FALSE"
         if qlist -I sys-fs/zfs > /dev/null 2>&1 || qlist -I sys-fs/zfs-kmod > /dev/null 2>&1; then
@@ -67,6 +66,8 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
         fi
 
         update-initrd "${KVER}"
+
+        make install
 
         popd || exit
     }
