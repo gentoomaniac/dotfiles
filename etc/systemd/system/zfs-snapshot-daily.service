@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily ZFS snapshots of /, /home and /boot
+Description=Daily snapshots of all ZFS filesystems
 After=zfs.target
 
 [Service]
