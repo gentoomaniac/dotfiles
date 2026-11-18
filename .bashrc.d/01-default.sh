@@ -46,4 +46,3 @@ function setup-env {
 stty -ixon
 
 export LANG=en_GB.UTF-8
-export LC_ALL=en_GB.UTF-8
