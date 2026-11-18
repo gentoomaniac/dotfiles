@@ -8,7 +8,11 @@ if [ -d "${HOME}/.bash_completion.d" ]; then
     done
 fi
 
-if [ -f "/usr/share/doc/fzf/examples/key-bindings.bash" ]; then
-    source /usr/share/doc/fzf/examples/key-bindings.bash
-fi
+# fzf key bindings: Debian path first, then Arch/Gentoo
+for file in /usr/share/doc/fzf/examples/key-bindings.bash /usr/share/fzf/key-bindings.bash; do
+    if [ -f "${file}" ]; then
+        source "${file}"
+        break
+    fi
+done
 

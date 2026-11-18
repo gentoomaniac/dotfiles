@@ -106,6 +106,5 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     alias zlock-clear="sudo rm -f /var/lock/portage_zfs_*.lock /var/tmp/.emerge_cmd_metadata"
 
     source /usr/share/bash-completion/completions/fzf
-    source /usr/share/fzf/key-bindings.bash
 
 fi
