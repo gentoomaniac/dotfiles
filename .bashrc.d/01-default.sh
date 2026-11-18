@@ -33,7 +33,7 @@ function setup-env {
     case ${1} in
 
         private)
-            export GIT_CONFIG=~/.gitconfig-private
+            export GIT_CONFIG_GLOBAL=~/.gitconfig-private
             start_ssh_agent private ~/.ssh/id_rsa
             ;;
 
