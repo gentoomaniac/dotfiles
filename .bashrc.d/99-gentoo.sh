@@ -6,7 +6,7 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     # simply exit 1. So only call _kupgrade/_kupdate via _kernel_as_root:
     # run directly, their exit would close the interactive shell.
     function _kernel_as_root {
-        sudo bash -c "$(declare -f _kupgrade _kupdate update-initrd); $1"
+        sudo bash -c "$(declare -f _kupgrade _kupdate _update_grub update-initrd); $1"
     }
 
     function kupgrade { _kernel_as_root _kupgrade; }
@@ -22,9 +22,6 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
         make olddefconfig || exit 1
 
         _kupdate || exit 1
-
-        grub-mkconfig -o /boot/grub/grub.cfg || exit 1
-        sed -i 's#root=ZFS=/gentoo/root ##g' /boot/grub/grub.cfg
     }
 
     function _kupdate {
@@ -80,6 +77,34 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
 
         # install the kernel last, after its initramfs exists
         make install || exit 1
+
+        _update_grub "${KVER}"
+    }
+
+    # grub-mkconfig silently drops the initrd line when it finds no initramfs
+    # next to the kernel, and the next boot fails. So check before, and build
+    # the new config next to the live one: it only replaces it once it has
+    # the initrd line, else the old, working config stays in place.
+    function _update_grub {
+        local KVER=${1}
+        local INITRD="/boot/initramfs-${KVER}.img"
+        local CFG=/boot/grub/grub.cfg
+
+        if [ ! -f "${INITRD}" ]; then
+            echo "Error: ${INITRD} is missing, not updating grub." >&2
+            exit 1
+        fi
+
+        grub-mkconfig -o "${CFG}.new" || exit 1
+        sed -i 's#root=ZFS=/gentoo/root ##g' "${CFG}.new" || exit 1
+
+        if ! grep -E '^\s*initrd\s' "${CFG}.new" | grep -qF "/initramfs-${KVER}.img"; then
+            echo "Error: new grub config has no initrd line for ${KVER}." >&2
+            echo "Kept the old ${CFG}; the rejected one is ${CFG}.new." >&2
+            exit 1
+        fi
+        mv "${CFG}.new" "${CFG}" || exit 1
+        echo ">>> grub.cfg boots ${KVER} with ${INITRD}"
     }
 
     # Also usable on its own as a normal user, hence the sudo calls (as root,
