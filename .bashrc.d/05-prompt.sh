@@ -2,6 +2,14 @@
 # Determined once here instead of calling hostnamectl on every prompt.
 _HOSTNAME="$(hostnamectl hostname)"
 
+if [[ "${_HOSTNAME}" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net)$ ]] && [ -f "${HOME}/.config/gh_token" ]; then
+    GH_TOKEN="$(cat "${HOME}/.config/gh_token")"
+    export GH_TOKEN
+fi
+
+# interactive only, see ~/.bashrc
+[[ $- == *i* ]] || return
+
 function _powerline() {
     local exit_code=$?
     if [[ "${_HOSTNAME}" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
@@ -21,11 +29,6 @@ function _powerline() {
 
     #set "?"
 }
-
-if [[ "${_HOSTNAME}" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net)$ ]] && [ -f "${HOME}/.config/gh_token" ]; then
-    GH_TOKEN="$(cat "${HOME}/.config/gh_token")"
-    export GH_TOKEN
-fi
 
 if [ "$TERM" != "linux" ] && [ -n "$(which powerline-go)" ]; then
     PROMPT_COMMAND="_powerline;"

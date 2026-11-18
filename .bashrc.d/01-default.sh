@@ -50,6 +50,9 @@ HISTFILESIZE=100000
 HISTCONTROL=ignoreboth
 shopt -s histappend
 
-stty -ixon
+# no terminal in non-interactive shells (ssh host cmd, scp)
+if [[ $- == *i* ]]; then
+    stty -ixon
+fi
 
 export LANG=en_GB.UTF-8

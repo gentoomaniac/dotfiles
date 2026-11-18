@@ -115,6 +115,8 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     alias snaps='zfs list -t snapshot -o name,used,refer,creation,com.gentoo:command'
     alias zlock-clear="sudo rm -f /var/lock/portage_zfs_*.lock /var/tmp/.emerge_cmd_metadata"
 
-    source /usr/share/bash-completion/completions/fzf
+    if [[ $- == *i* ]]; then
+        source /usr/share/bash-completion/completions/fzf
+    fi
 
 fi
