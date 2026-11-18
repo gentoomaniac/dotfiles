@@ -111,8 +111,12 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
         if lspci -nn -d 8086: | grep -Eq '\[03[0-9a-f]{2}\]'; then
             DRACUT_ARGS+=(--add-drivers "i915")
         fi
+        # Explicit output path: without it, dracut only writes to /boot if
+        # /boot/kernel-${KVER} already exists, else to /lib/modules/${KVER}/
+        # or /efi, where grub-mkconfig doesn't find it and drops the initrd.
         sudo dracut "${DRACUT_ARGS[@]}" \
-            --omit "nfs nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+            --omit "nfs nvidia nvidia_modeset nvidia_uvm nvidia_drm" \
+            "/boot/initramfs-${KVER}.img"
     }
 
     # aliases
