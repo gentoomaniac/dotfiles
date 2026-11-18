@@ -1,25 +1,4 @@
 # prompt
-# https://misc.flogisoft.com/bash/tip_colors_and_formatting
-BLACK="\[$(tput setaf 0)\]"
-RED="\[$(tput setaf 196)\]"
-GREEN="\[$(tput setaf 2)\]"
-GREENB="\[$(tput setaf 118)\]"
-BROWN="\[$(tput setaf 3)\]"
-YELLOW="\[$(tput setaf 227)\]"
-LIGHTBLUE="\[$(tput setaf 033)\]"
-BLUE="\[$(tput setaf 4)\]"
-DARKBLUE="\[$(tput setaf 021)\]"
-MAGENTA="\[$(tput setaf 5)\]"
-CYAN="\[$(tput setaf 6)\]"
-WHITE="\[$(tput setaf 7)\]"
-ORANGE="\[$(tput setaf 202)\]"
-RESET="\[$(tput sgr0)\]"
-BOLD="\[$(tput bold)\]"
-SMUL="\[$(tput smul)\]"
-RMUL="\[$(tput rmul)\]"
-BLINK="\[$(tput blink)\]"
-SMSO="\[$(tput smso)\]"
-RMSO="\[$(tput rmso)\]"
 
 function _powerline() {
     local exit_code=$?
