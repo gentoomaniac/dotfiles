@@ -42,7 +42,8 @@ if [[ -d /sys/module/zfs ]]; then
         fi
 
         # 4. Space Guard
-        local AVAIL_BYTES=$(zfs list -H -p -o avail rootpool)
+        local AVAIL_BYTES
+        AVAIL_BYTES=$(zfs list -H -p -o avail rootpool)
         local MIN_BYTES=$(( ZFS_MIN_FREE_GB * 1024 * 1024 * 1024 ))
 
         if [[ "$AVAIL_BYTES" -lt "$MIN_BYTES" ]]; then
@@ -52,11 +53,13 @@ if [[ -d /sys/module/zfs ]]; then
 
         # 5. Snapshot Logic
         if [[ ! -f "$ZFS_GLOBAL_LOCK" ]]; then
-            local SNAP_TIME=$(date +%Y%m%d-%H%M)
+            local SNAP_TIME
+            SNAP_TIME=$(date +%Y%m%d-%H%M)
             local SNAP_NAME="pre-emerge-${SNAP_TIME}"
 
             # Clean up the command string for metadata
-            local CMD_COMMENT=$(echo "$EMERGE_CMD" | xargs)
+            local CMD_COMMENT
+            CMD_COMMENT=$(echo "$EMERGE_CMD" | xargs)
 
             einfo "ZFS: Creating recursive snapshot: ${ZFS_TARGET_DATASET}@${SNAP_NAME}"
 
@@ -75,18 +78,21 @@ if [[ -d /sys/module/zfs ]]; then
         local TARGET=$1
         # Check 'root' child to find snapshots reliably
         local CHECK_DS="${TARGET}/root"
-        local SNAPS=($(zfs list -t snapshot -H -S creation -o name "$CHECK_DS" | grep "pre-emerge"))
+        local SNAPS
+        mapfile -t SNAPS < <(zfs list -t snapshot -H -S creation -o name "$CHECK_DS" | grep "pre-emerge")
         local COUNT=${#SNAPS[@]}
 
         if [[ $COUNT -gt $ZFS_MIN_KEEP_COUNT ]]; then
-            for (( i=$ZFS_MIN_KEEP_COUNT; i<$COUNT; i++ )); do
+            for (( i=ZFS_MIN_KEEP_COUNT; i<COUNT; i++ )); do
                 local SNAP=${SNAPS[$i]}
-                local CREATION=$(zfs get -H -p -o value creation "$SNAP")
-                local NOW=$(date +%s)
+                local CREATION NOW
+                CREATION=$(zfs get -H -p -o value creation "$SNAP")
+                NOW=$(date +%s)
                 local AGE=$(( (NOW - CREATION) / 86400 ))
 
                 if [[ $AGE -gt $ZFS_SNAP_TTL_DAYS ]]; then
-                    local SNAP_TAG=$(echo "$SNAP" | cut -d'@' -f2)
+                    local SNAP_TAG
+                    SNAP_TAG=$(echo "$SNAP" | cut -d'@' -f2)
                     einfo "ZFS: Pruning snapshot (Age: ${AGE}d): ${TARGET}@${SNAP_TAG}"
                     zfs destroy -r "${TARGET}@${SNAP_TAG}"
                 fi
