@@ -43,6 +43,13 @@ function setup-env {
     esac
 }
 
+# history: keep a lot, skip duplicates and space-prefixed commands, and
+# append on exit instead of overwriting what other terminals wrote
+HISTSIZE=50000
+HISTFILESIZE=100000
+HISTCONTROL=ignoreboth
+shopt -s histappend
+
 stty -ixon
 
 export LANG=en_GB.UTF-8
