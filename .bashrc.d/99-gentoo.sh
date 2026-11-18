@@ -9,7 +9,7 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
 
         pushd /usr/src/linux || exit
         zcat /proc/config | sudo tee .config >/dev/null
-        sudo make olddeconfig
+        sudo make olddefconfig
 
         kupdate
 
