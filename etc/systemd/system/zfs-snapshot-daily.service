@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily ZFS snapshots of /, /home and /boot
+After=zfs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/zfs-snapshots create

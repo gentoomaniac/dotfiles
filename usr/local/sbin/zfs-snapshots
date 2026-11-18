@@ -1,0 +1,58 @@
+#!/bin/bash
+# Daily ZFS snapshots and their cleanup, run by the zfs-snapshot-daily and
+# zfs-snapshot-prune systemd timers.
+#
+#   zfs-snapshots create   snapshot every dataset below as @daily-<timestamp>
+#   zfs-snapshots prune    per dataset, destroy snapshots older than KEEP_DAYS,
+#                          but never the newest KEEP_COUNT. This covers all
+#                          snapshots of the dataset, also pre-emerge-* and
+#                          pre-kupdate-* ones.
+#
+# The emerge and kupdate hooks snapshot recursively from rootpool/gentoo and
+# bootpool. Prune only removes the copies on the datasets below, so their
+# (nearly empty) copies on those parent datasets are left behind.
+
+DATASETS=(rootpool/gentoo/root rootpool/home bootpool/boot)
+KEEP_DAYS=7
+KEEP_COUNT=7
+
+create() {
+    local name ds failed=0
+    name="daily-$(date +%Y%m%d-%H%M)"
+    for ds in "${DATASETS[@]}"; do
+        if zfs snapshot "${ds}@${name}"; then
+            echo "Created ${ds}@${name}"
+        else
+            echo "Failed to create ${ds}@${name}" >&2
+            failed=1
+        fi
+    done
+    return "${failed}"
+}
+
+prune() {
+    local ds snaps snap creation i failed=0
+    local cutoff=$(( $(date +%s) - KEEP_DAYS * 86400 ))
+    for ds in "${DATASETS[@]}"; do
+        # this dataset's own snapshots (-d 1), oldest first, creation in epoch seconds
+        mapfile -t snaps < <(zfs list -H -p -t snapshot -d 1 -s creation -o name,creation "${ds}")
+        # all but the newest KEEP_COUNT are candidates
+        for (( i = 0; i < ${#snaps[@]} - KEEP_COUNT; i++ )); do
+            read -r snap creation <<< "${snaps[i]}"
+            (( creation < cutoff )) || continue
+            if zfs destroy "${snap}"; then
+                echo "Destroyed ${snap}"
+            else
+                echo "Failed to destroy ${snap}" >&2
+                failed=1
+            fi
+        done
+    done
+    return "${failed}"
+}
+
+case "${1}" in
+    create) create ;;
+    prune) prune ;;
+    *) echo "Usage: ${0##*/} create|prune" >&2; exit 2 ;;
+esac

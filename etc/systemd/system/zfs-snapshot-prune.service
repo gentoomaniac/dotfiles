@@ -1,0 +1,7 @@
+[Unit]
+Description=Destroy ZFS snapshots older than 7 days, keeping the newest 7
+After=zfs.target zfs-snapshot-daily.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/zfs-snapshots prune

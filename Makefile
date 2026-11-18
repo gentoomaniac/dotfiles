@@ -1,5 +1,5 @@
 # Shell files maintained here (vendored .bash_completion.d is left out).
-SHELL_FILES := .bashrc $(wildcard .bashrc.d/*.sh) etc/portage/bashrc portage.bashrc usr/local/sbin/emerge
+SHELL_FILES := .bashrc $(wildcard .bashrc.d/*.sh) etc/portage/bashrc portage.bashrc usr/local/sbin/emerge usr/local/sbin/zfs-snapshots
 
 .PHONY: check lint syntax
 
