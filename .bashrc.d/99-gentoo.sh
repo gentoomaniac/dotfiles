@@ -94,8 +94,13 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
         # --force: Overwrite existing images
         # --hostonly: precise image for this machine
         # --omit: Strip networking and NVIDIA to keep it small (~30MB)
-        sudo dracut --hostonly --kver "${KVER}" --force \
-            --add-drivers "i915" \
+        local DRACUT_ARGS=(--hostonly --kver "${KVER}" --force)
+        # i915 is only needed (and only available) on hosts with an Intel GPU:
+        # vendor 8086 (Intel) with PCI class 03xx (display controller)
+        if lspci -nn -d 8086: | grep -Eq '\[03[0-9a-f]{2}\]'; then
+            DRACUT_ARGS+=(--add-drivers "i915")
+        fi
+        sudo dracut "${DRACUT_ARGS[@]}" \
             --omit "nfs nvidia nvidia_modeset nvidia_uvm nvidia_drm"
     }
 
