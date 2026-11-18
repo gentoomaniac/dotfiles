@@ -14,14 +14,14 @@ function start_ssh_agent {
         . "${SSH_ENV}" > /dev/null
     fi
 
-    if [ -z "${SSH_AGENT_PID}" ] || [[ ! "$(pidof ssh-agent)" =~ "${SSH_AGENT_PID}" ]]; then
+    if [ -z "${SSH_AGENT_PID}" ] || ! kill -0 "${SSH_AGENT_PID}" 2>/dev/null; then
         echo "Initialising new SSH agent for '${SSH_ENV_PREFIX}' ..."
         ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
         chmod 600 "${SSH_ENV}"
         # shellcheck disable=SC1090
         . "${SSH_ENV}" > /dev/null
         for key in "${@:-${HOME}/.ssh/id_ed25519}"; do
-            ssh-add ${key}
+            ssh-add "${key}"
         done
         ssh-add -l
     fi
