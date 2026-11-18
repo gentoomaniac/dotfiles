@@ -1,8 +1,10 @@
 # prompt
+# Determined once here instead of calling hostnamectl on every prompt.
+_HOSTNAME="$(hostnamectl hostname)"
 
 function _powerline() {
     local exit_code=$?
-    if [[ "$(hostnamectl hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
+    if [[ "${_HOSTNAME}" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net|bumblebee)$ ]]; then
         MODULES="time,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
     else
         MODULES="time,user,host,venv,ssh,cwd,perms,git,kube,hg,jobs,exit"
@@ -20,7 +22,7 @@ function _powerline() {
     #set "?"
 }
 
-if [[ "$(hostnamectl hostname)" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net)$ ]]; then
+if [[ "${_HOSTNAME}" =~ ^(mbrk-gentoo|gentoobox.clients.gentoomaniac.net)$ ]]; then
     export GH_TOKEN="$(cat "${HOME}/.config/gh_token")"
 fi
 
