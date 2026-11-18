@@ -1,9 +1,8 @@
 if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     function kupgrade {
         eselect kernel list
-        echo -n "Select kernel: "; read selected_kernel
-        sudo eselect kernel set "${selected_kernel}"
-        if [ $? -ne 0 ]; then
+        echo -n "Select kernel: "; read -r selected_kernel
+        if ! sudo eselect kernel set "${selected_kernel}"; then
             return 1
         fi
 
@@ -19,7 +18,8 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
     }
 
     function kupdate {
-        local BOOT_SNAP_NAME="pre-kupdate-$(date +"%Y%m%d-%H%M%S")"
+        local BOOT_SNAP_NAME
+        BOOT_SNAP_NAME="pre-kupdate-$(date +"%Y%m%d-%H%M%S")"
         if zfs list bootpool >/dev/null 2>&1; then
             echo ">>> ZFS: Snapshotting bootpool: bootpool@${BOOT_SNAP_NAME}"
             sudo zfs snapshot -r -o "com.gentoo:command=kupdate (manual)" "bootpool@${BOOT_SNAP_NAME}"
@@ -27,8 +27,9 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
 
         pushd /usr/src/linux || return 1
 
-        local KVER=$(make -s kernelrelease)
-        local DATESTAMP=$(date +"%Y-%m-%d-%H%M%S")
+        local KVER DATESTAMP
+        KVER=$(make -s kernelrelease)
+        DATESTAMP=$(date +"%Y-%m-%d-%H%M%S")
         local CONFIG_ARCHIVE="/boot/config-${KVER}-${DATESTAMP}"
 
         if [ -f .config ]; then
@@ -41,7 +42,8 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
             sudo cp .config "../config-$(readlink ../linux)-${DATESTAMP}"
         fi
 
-        local CORES=$(nproc)
+        local CORES
+        CORES=$(nproc)
         local JOBS=$(( CORES > 2 ? CORES - 2 : 1 ))
         echo ">>> Detected $CORES cores. Building with -j$JOBS..."
 
@@ -54,7 +56,6 @@ if [ "${DISTRIB_ID}" == "Gentoo" ]; then
             REBUILD_MODULES="TRUE"
         fi
 
-        DRACUT_NVIDIA=""
         if lspci | grep -qi "nvidia" && qlist -I x11-drivers/nvidia-drivers > /dev/null 2>&1; then
             echo ">>> nvidia-drivers detected..."
             REBUILD_MODULES="TRUE"
